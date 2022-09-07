@@ -1,0 +1,10 @@
+{
+  "eventName": "VMStar.Account.create",
+        "eventVersion": 1,
+        "transactionEntityKeyName": "XREF-VALUE",
+        "transactionEntityKeyValue": "0018000000y8hEjAAI",
+        "eventMessage": {
+            "partyDetails": []
+        },
+        "eventMessageRefId": "ce284ea0-1cbf-448d-878b-9983684239a4_1648117783021_1"
+}

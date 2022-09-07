@@ -1,0 +1,32 @@
+instructions for hermes-client build 
+
+add a c++ compiler, vsc++, gnu g++, or clang
+
+https://aka.ms/vs/17/release/vs_community.exe
+
+https://aka.ms/vs/17/release/vs_buildtools.exe
+
+
+Not required, but if you are using visual studio code, this will make life a lot easier :
+
+C/C++ Extension Pack
+v1.3.0
+Microsoft
+
+This project is making heavy use of the cpr library
+https://github.com/libcpr/cpr
+
+
+install cmake and make
+
+https://community.chocolatey.org/packages/cmake
+
+https://community.chocolatey.org/packages/make
+
+mkdir build && cd build
+cmake ..
+make
+
+or on windows, use MSBuild (instead of make) via :
+
+cmake --build . --target INSTALL --config Release
