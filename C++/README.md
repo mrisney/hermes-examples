@@ -1,33 +1,48 @@
-# C++ Requests: Curl for People <img align="right" height="40" src="http://i.imgur.com/d9Xtyts.png">
+# C++ Submit Event to EventHub
 
-[![Documentation](https://img.shields.io/badge/docs-online-informational?style=flat&link=https://docs.libcpr.org/)](https://docs.libcpr.org/)
-![CI](https://github.com/libcpr/cpr/workflows/CI/badge.svg)
-[![Gitter](https://badges.gitter.im/libcpr/community.svg)](https://gitter.im/libcpr/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+This is a C++ implementation of publishing an event (as a json source) into the EventHub.
+It is a straightforward reference implementation : get a token, using the credentials in the config.json file),
+preparing a JSON payload, and posting the event to a EventHub service.
 
-## Announcements
+## Documentation
 
-* Like you probably have noticed, `cpr` moved to a new home from https://github.com/whoshuu/cpr to https://github.com/libcpr/cpr. Read more [here](https://github.com/libcpr/cpr/issues/636).
-* This project is being maintained by [Fabian Sauter](https://github.com/com8) and [Kilian Traub](https://github.com/KingKili).
-* For quick help, and discussion libcpr also offer a [gitter](https://gitter.im/libcpr/community?utm_source=share-link&utm_medium=link&utm_campaign=share-link) chat.
+* This is making use of the popular `cpr` C++ library (moved to a new home from https://github.com/whoshuu/cpr to https://github.com/libcpr/cpr. Read more [here](https://github.com/libcpr/cpr/issues/636) ).
+* This project also uses `nlohmann` https://github.com/nlohmann/json json parser
 
 ## TLDR
 
 C++ Requests is a simple wrapper around [libcurl](http://curl.haxx.se/libcurl) inspired by the excellent [Python Requests](https://github.com/kennethreitz/requests) project.
 
-Despite its name, libcurl's easy interface is anything but, and making mistakes, misusing it is a common source of error and frustration. Using the more expressive language facilities of `C++17` (or `C++11` in case you use cpr < 1.10.0), this library captures the essence of making network calls into a few concise idioms.
-
-Here's a quick GET request:
+Despite its name, libcurl's easy interface is anything but, Here's a quick POST request, for the Kong API token service:
 
 ```c++
 #include <cpr/cpr.h>
 
 int main(int argc, char** argv) {
-    cpr::Response r = cpr::Get(cpr::Url{"https://api.github.com/repos/whoshuu/cpr/contributors"},
-                      cpr::Authentication{"user", "pass", cpr::AuthMode::BASIC},
-                      cpr::Parameters{{"anon", "true"}, {"key", "value"}});
-    r.status_code;                  // 200
-    r.header["content-type"];       // application/json; charset=utf-8
-    r.text;                         // JSON text string
+    string auth_token;
+    cpr::Response response;
+    response = cpr::Post(cpr::Url("https://apigw-sbx.vmware.com/dev/v1/m0/api/token/application"),
+                         cpr::Header{{"Content-Type", "application/json"}},
+                         cpr::Authentication{[client_id], [client_secret]},
+                         cpr::Body{"{\"grant_type\":\"client_credentials\"}"});
+
+    if (response.status_code == 0)
+    {
+        cerr << response.error.message << endl;
+    }
+    else if (response.status_code >= 400)
+    {
+        cerr << "Error [" << response.status_code << "] making request" << endl;
+    }
+    else
+    {
+        cout << "Authenticated" << endl;
+        cout << "Request from Kong token API took " << response.elapsed << endl;
+        json j = json::parse(response.text);
+        auth_token = j["access_token"].get<string>();
+    }
+    
+    cout << "auth token : "+auth_token << endl; auth_token;
     return 0;
 }
 ```
@@ -39,47 +54,46 @@ And here's [less functional, more complicated code, without cpr](https://gist.gi
 [![Documentation](https://img.shields.io/badge/docs-online-informational?style=for-the-badge&link=https://docs.libcpr.org/)](https://docs.libcpr.org/)  
 You can find the latest documentation [here](https://docs.libcpr.org/). It's a work in progress, but it should give you a better idea of how to use the library than the [tests](https://github.com/libcpr/cpr/tree/master/test) currently do.
 
-## Features
-
-C++ Requests currently supports:
-
-* Custom headers
-* Url encoded parameters
-* Url encoded POST values
-* Multipart form POST upload
-* File POST upload
-* Basic authentication
-* Bearer authentication
-* Digest authentication
-* NTLM authentication
-* Connection and request timeout specification
-* Timeout for low speed connection
-* Asynchronous requests
-* :cookie: support!
-* Proxy support
-* Callback interfaces
-* PUT methods
-* DELETE methods
-* HEAD methods
-* OPTIONS methods
-* PATCH methods
-* Thread Safe access to [libCurl](https://curl.haxx.se/libcurl/c/threadsafe.html)
-* OpenSSL and WinSSL support for HTTPS requests
-
-## Planned
-
-For a quick overview about the planed features, have a look at the next [Milestones](https://github.com/libcpr/cpr/milestones).
-
 ## Usage
+ As an executable, using Bash, MS Powershell, or DOS Command, you can interact with the compiled binary, you will be prompted to enter a file that contains the event in a well formed JSON format, the message will be then submitted to the EventHub, and the status is reported back, this is example dialog
+
+ ```bash
+    PS C:\VMWare\Projects\hermes\eventhubsamples\C++\build\Release> .\hermes-client.exe
+    Hermes Client - Publish Event
+    Please enter the name of the message input file.
+    Filename: example.json
+    {"eventName": "VMStar.Account.create",
+        "eventVersion": 1,
+        "transactionEntityKeyName": "XREF-VALUE",
+        "transactionEntityKeyValue": "TEST-0018000000y8hEjAAI",
+        "eventMessage": {
+            "partyDetails": []
+        },
+        "eventMessageRefId": "ce284ea0-1cbf-448d-878b-9983684239a4_1648117783021_1"
+    }
+    Authenticated
+    Request from Kong token API took 0.352166
+    {"messageStatus":{"status":"Publisher_Success","statusMessage":"Successfully published the message","msgRefID":"d280c75e-01a9-46a7-b0b4-2745b3c96755"}}
+ ```
 
 ### CMake
 
 #### fetch_content:
 If you already have a CMake project you need to integrate C++ Requests with, the primary way is to use `fetch_content`.
-Add the following to your `CMakeLists.txt`.
-
+Add the following to included `CMakeLists.txt`. Both `cpr` and `nlohmann` libraries can be added via `fetch_content`
 
 ```cmake
+
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git GIT_TAG f4622efcb59d84071ae11404ae61bd821c1c344b) # the commit hash for 1.6.2
+FetchContent_MakeAvailable(cpr)
+
+FetchContent_Declare(json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.2)
+FetchContent_MakeAvailable(json)
+
+
 include(FetchContent)
 FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
                          GIT_TAG 871ed52d350214a034f6ef8a3b8f51c5ce1bd400) # The commit hash for 1.9.0. Replace with the latest from: https://github.com/libcpr/cpr/releases
@@ -116,8 +130,6 @@ target_link_libraries(your_target_name PRIVATE cpr::cpr)
 ### Packages for Linux Distributions
 
 Alternatively, you may install a package specific to your Linux distribution. Since so few distributions currently have a package for cpr, most users will not be able to run your program with this approach.
-
-Currently, we are aware of packages for the following distributions:
 
 * [Arch Linux (AUR)](https://aur.archlinux.org/packages/cpr)
 
