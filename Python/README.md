@@ -7,41 +7,69 @@ It is a straightforward  reference implementation, preparing a JSON payload, and
 Documentation
 -------------
 
-Install the Python request module, if not already installed
+Install the Python `requests` https://pypi.org/project/requests/ module, if not already installed.
 ```bash
-python pip install request
+python pip install requests
 ```
-Create a header with a Basic password
 
+The following imports are nessecary to interact with both the Token (Kong) API Service and the EventHub Service
 ```python
 import  requests
 import  json
  
+```
+The Python example uses the Kong API service, and a method get_access_token(url, client_id, client_secret)
+for this example, these are example credentials
+
+```python
+
+publisher_url = 'https://apigw-sbx.vmware.com/dev12/v1/m4/api/hermes/publisher/hermes/integration/test'
+
+oauth_url = 'https://apigw-sbx.vmware.com/dev/v1/m0/api/token/application'
+oauth_username = '01a0ac4e-afcf-4b6d-8268-f27dbaa6508e'
+oauth_password = '2e2d8919-d67d-48f4-b07a-bce952a58e05'
+
+```
+This method will retrive the access token from the JSON response to the API Token Service  
+
+```python
+def get_access_token(url, client_id, client_secret):
+    response = requests.post(
+        url,
+        data = {"grant_type": "client_credentials"},
+        auth = ( client_id, client_secret),
+    )
+    return response.json()["access_token"]
+
+auth_token = get_access_token( oauth_url, oauth_username, oauth_password)
+```
+
+Once the token is avaialble, (by default the TimeToLive TTL is 1200 seconds), the token is placed in the 
+Header for the request to the EventHub Service, here is the remainder of the submission, using the `requests`
+library
+
+```python
+
 headers = {
-'Content-type':'application/json',
-'Accept':'application/json',
-'Authorization' : 'Basic YWRtaW46cHJvZHVjZXIxIQ=='}
-```
-Point the URL to the service, for this example, it is running locally as a
-SpringBoot MicroService.
+    'Content-type':'application/json', 
+    'Accept':'application/json',
+    'Authorization' : "Bearer %s" %auth_token
+}
 
-```python
-url = 'http://localhost:8888/v1/hermes/publisher/hermes/integration/test'
-```
-Create the request/data to be posted 
-
-```python
 data = {'eventName': 'VMStar.Account.create',
-'eventVersion': 1,
-'transactionEntityKeyName': 'XREF-VALUE',
-'transactionEntityKeyValue': '0018000000y8hEjAAI',
-'eventMessage': {'partyDetails': []},
-'eventMessageRefId': 'ce284ea0-1cbf-448d-878b-9983684239a4_1648117783021_1'}
-```
-Post the request, the request/data to be posted 
+        'eventVersion': 1,
+        'transactionEntityKeyName': 'XREF-VALUE',
+        'transactionEntityKeyValue': '0018000000y8hEjAAI',
+        'eventMessage': {
+            'partyDetails': []
+        },
+        'eventMessageRefId': 'ce284ea0-1cbf-448d-878b-9983684239a4_1648117783021_1'}
+        
+response = requests.post(
+    publisher_url, 
+    json=data, 
+    headers=headers)
 
-```python
-response = requests.post(url,json=data,headers=headers)
 print(response.status_code)
 print(response.text)
 ```
