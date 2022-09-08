@@ -21,7 +21,7 @@ string publish_message(config const &conf, string const &auth_token, string cons
 
 int main()
 {
-    // load  json config file ( must be present in same directory as binary) -> config
+    // load  json config file (must be present in same directory as binary) -> config
     ifstream f("config.json");
     json j = json::parse(f);
 
@@ -50,10 +50,10 @@ int main()
                                        "eventMessageRefId": "ce284ea0-1cbf-448d-878b-9983684239a4_1648117783021_1"})";
     }
 
-    // call the Kong API  to get a tokem, using the config properties
+    // call the Kong API to get access token/auth token, using the config properties
     string auth_token = get_auth_token(conf);
     
-    // publish the josn message (contents) passing in the confid, and auth_token
+    // publish the json message (contents), as well as passing in the conf, and auth_token
     string results = publish_message(conf, auth_token, contents);
     cout << results << endl;
     return 0;
