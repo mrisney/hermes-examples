@@ -19,12 +19,11 @@ import  json
  
 ```
 The Python example uses the Kong API service, and a method get_access_token(url, client_id, client_secret)
-for this example, these are example credentials
+for this example, these are example credentials, and nessecary endpoints in the following variables.
 
 ```python
 
 publisher_url = 'https://apigw-sbx.vmware.com/dev12/v1/m4/api/hermes/publisher/hermes/integration/test'
-
 oauth_url = 'https://apigw-sbx.vmware.com/dev/v1/m0/api/token/application'
 oauth_username = '01a0ac4e-afcf-4b6d-8268-f27dbaa6508e'
 oauth_password = '2e2d8919-d67d-48f4-b07a-bce952a58e05'
