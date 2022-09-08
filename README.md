@@ -9,16 +9,16 @@ There are examples in
 - Python
 
 The Golang, and C++ implementations are pre-compiled executables on MS Windows X64, however, they can be run, using
-MS DOS, Git Bash, or (reccommneded) MS PowerShell, there are asscoiated config.json files that can be edited.
+MS DOS, Git Bash, or (recommended) MS PowerShell, there are asscoiated config.json files that can be edited.
 
-These are straightforward reference implementations, that very simply, for explanation, perform : 
+These are straightforward reference implementations, that very simply, for explanation, the code performs : 
 
 1. Get a token from the Kong API Token service, with credentials (supplied).
 2. Preparing a JSON payload, and posting the event to a EventHub service.
 
 ## Getting started
-It is assumed that the Developer will have the appropriate Development environment and tools used, for these examples
-The following were used:
+It is assumed that the Developer will have the appropriate development environment, and tools.
+For these examples, the following were used:
 
 1. IDE MS Visual Studio Code : https://code.visualstudio.com/
 2. Python : https://www.python.org/downloads/
