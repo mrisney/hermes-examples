@@ -46,15 +46,8 @@ int main(int argc, char** argv) {
     return 0;
 }
 ```
-
-And here's [less functional, more complicated code, without cpr](https://gist.github.com/whoshuu/2dc858b8730079602044).
-
-## Documentation
-
-[![Documentation](https://img.shields.io/badge/docs-online-informational?style=for-the-badge&link=https://docs.libcpr.org/)](https://docs.libcpr.org/)  
-You can find the latest documentation [here](https://docs.libcpr.org/). It's a work in progress, but it should give you a better idea of how to use the library than the [tests](https://github.com/libcpr/cpr/tree/master/test) currently do.
-
 ## Usage
+
  As an executable, using Bash, MS Powershell, or DOS Command, you can interact with the compiled binary, you will be prompted to enter a file that contains the event in a well formed JSON format, the message will be then submitted to the EventHub, and the status is reported back, this is example dialog
 
  ```bash
@@ -77,6 +70,15 @@ You can find the latest documentation [here](https://docs.libcpr.org/). It's a w
  ```
 
 ### CMake
+
+To compile, after a C++ compiler, and CMake are present, run the following commands
+
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build . --target INSTALL --config Release
+```
+This will take some time, but there will be a binary "hermes-client", add the config.json, and the example.json file in the same directory.
 
 #### fetch_content:
 If you already have a CMake project you need to integrate C++ Requests with, the primary way is to use `fetch_content`.
